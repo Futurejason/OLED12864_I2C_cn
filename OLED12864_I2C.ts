@@ -425,18 +425,6 @@ namespace OLED12864_I2C {
     }
 
     /**
-     * 屏幕内容反显。true反显，false正常显示
-     * @param d true: invert / false: normal, eg: true
-     */
-    //% blockId="OLED12864_I2C_INVERT" block="屏幕反显 %d"
-    //% weight=65 blockGap=8
-    //% parts=OLED12864_I2C trackArgs=0
-    export function invert(d: boolean = true) {
-        let n = (d) ? 0xA7 : 0xA6
-        cmd1(n)
-    }
-
-    /**
      * 重新绘制屏幕的显示内容xxxxxx
      */
     //% blockId="OLED12864_I2C_DRAW" block="OLED实时刷新"
@@ -474,18 +462,6 @@ namespace OLED12864_I2C {
     //% parts=OLED12864_I2C trackArgs=0
     export function off() {
         cmd1(0xAE)
-    }
-
-    /**
-     * 放大模式，true放大显示，false正常显示
-     * @param d true zoom / false normal, eg: true
-     */
-    //% blockId="OLED12864_I2C_ZOOM" block="放大模式 %d"
-    //% weight=60 blockGap=8
-    //% parts=OLED12864_I2C trackArgs=0
-    export function zoom(d: boolean = true) {
-        _ZOOM = (d) ? 1 : 0
-        cmd2(0xd6, _ZOOM)
     }
 
     /**
