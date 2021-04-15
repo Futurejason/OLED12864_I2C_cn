@@ -12,8 +12,8 @@ namespace OLED12864_I2C {
     let OLED_CMD = 0;
     let OLED_DATA = 1;
     let OLED_GRAM;
-    let a;
-    let b;
+    let a :number;
+    let b :number;
     let font: number[] = [];
     font[0] = 0x0022d422;
     font[1] = 0x0022d422;
@@ -152,7 +152,7 @@ namespace OLED12864_I2C {
     let _ZOOM = OLED_DATA;
 
 
-    function OLED_ColorTurn(i) {
+    function OLED_ColorTurn(i:number) {
         if (!i) {
             OLED_WR_Byte(0xA6, OLED_CMD, a, b)
         }//正常显示
@@ -161,7 +161,7 @@ namespace OLED12864_I2C {
         };//反色显示
     }
 
-    function OLED_DisplayTurn(i)
+    function OLED_DisplayTurn(i:number)
     {
         if (i == 0) {
             OLED_WR_Byte(0xC8, OLED_CMD,a ,b);//正常显示
@@ -175,7 +175,7 @@ namespace OLED12864_I2C {
 
 
     //初始化
-    function OLED_WR_Byte(dat: number, mode: number, scl, sda) {
+    function OLED_WR_Byte(dat: number, mode: number, scl:number, sda :number) {
         I2C_Start(scl, sda);
         Send_Byte(0x78, scl, sda);
         I2C_WaitAck(scl);
@@ -188,7 +188,7 @@ namespace OLED12864_I2C {
     }
 
     //起始信号
-    function I2C_Start(scl, sda) {
+    function I2C_Start(scl:number, sda :number) {
         pins.digitalWrite(sda, 1)
         pins.digitalWrite(scl, 1)
         pins.digitalWrite(sda, 0)
@@ -196,7 +196,7 @@ namespace OLED12864_I2C {
     }
 
     //写入一个字符
-    function Send_Byte(dat, scl, sda) {
+    function Send_Byte(dat :number, scl :number, sda :number) {
         let i;
         for (i = 0; i < 8; i++) {
             pins.digitalWrite(scl, 0)//将时钟信号设置为低电平
@@ -214,14 +214,14 @@ namespace OLED12864_I2C {
     }
 
     //等待信号响应
-    function I2C_WaitAck(scl) //测数据信号的电平
+    function I2C_WaitAck(scl:number) //测数据信号的电平
     {
         pins.digitalWrite(scl, 1);
         pins.digitalWrite(scl, 0);
     }
 
     //结束信号
-    function I2C_Stop(scl, sda) {
+    function I2C_Stop( scl :number, sda :number) {
         pins.digitalWrite(scl, 1);
         pins.digitalWrite(sda, 0);
         pins.digitalWrite(sda, 1)// OLED_SDIN_Set();
@@ -242,7 +242,7 @@ namespace OLED12864_I2C {
     }
 
     //更新显存到OLED 
-    function OLED_Refresh(scl, sda) {
+    function OLED_Refresh( scl :number, sda :number) {
         let i, n;
         for (i = 0; i < 8; i++) {
             OLED_WR_Byte(0xb0 + i, OLED_CMD, scl, sda); //设置行起始地址
@@ -496,9 +496,9 @@ namespace OLED12864_I2C {
     //% weight=100 blockGap=8
     //% parts=OLED12864_I2C trackArgs=0
     export function init(scls: DigitalPin, sdas: DigitalPin) {
-        pinMode(scls, OUTPUT);//设置数字8
-        pinMode(sdas, OUTPUT);//设置数字9
-        pinMode(res, OUTPUT);//设置数字10
+        // pinMode(scls, OUTPUT);//设置数字8
+        // pinMode(sdas, OUTPUT);//设置数字9
+        // pinMode(res, OUTPUT);//设置数字10
         a = scls;
         b = sdas;
         pins.digitalWrite(res, 1);
