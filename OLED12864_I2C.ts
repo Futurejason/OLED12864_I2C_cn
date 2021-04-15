@@ -6,6 +6,14 @@
 
 //% weight=20 color=#0855AA icon="O" block="OLED12864_I2C"
 namespace OLED12864_I2C {
+
+
+    let res = 10;
+    let OLED_CMD = 0;
+    let OLED_DATA = 1;
+    let OLED_GRAM;
+    let a;
+    let b;
     let font: number[] = [];
     font[0] = 0x0022d422;
     font[1] = 0x0022d422;
@@ -136,13 +144,120 @@ namespace OLED12864_I2C {
     font[126] = 0x00841080;
     font[127] = 0x0022d422;
 
-    let _I2CAddr = 0;
+    let _I2CAddr = OLED_CMD;
     let _screen = pins.createBuffer(1025);
     let _buf2 = pins.createBuffer(2);
     let _buf3 = pins.createBuffer(3);
     let _buf4 = pins.createBuffer(4);
-    let _ZOOM = 1;
+    let _ZOOM = OLED_DATA;
 
+
+    function OLED_ColorTurn(i) {
+        if (!i) {
+            OLED_WR_Byte(0xA6, OLED_CMD, a, b)
+        }//正常显示
+        else {
+            OLED_WR_Byte(0xA7, OLED_CMD, a, b)
+        };//反色显示
+    }
+
+    function OLED_DisplayTurn(i)
+    {
+        if (i == 0) {
+            OLED_WR_Byte(0xC8, OLED_CMD,a ,b);//正常显示
+            OLED_WR_Byte(0xA1, OLED_CMD,a ,b);
+        }
+        else {
+            OLED_WR_Byte(0xC0, OLED_CMD,a ,b);//反转显示
+            OLED_WR_Byte(0xA0, OLED_CMD,a ,b);
+        }
+    }
+
+
+    //初始化
+    function OLED_WR_Byte(dat: number, mode: number, scl, sda) {
+        I2C_Start(scl, sda);
+        Send_Byte(0x78, scl, sda);
+        I2C_WaitAck(scl);
+        if (mode) { Send_Byte(0x40, scl, sda); }
+        else { Send_Byte(0x00, scl, sda); }
+        I2C_WaitAck(scl);
+        Send_Byte(dat, scl, sda);
+        I2C_WaitAck(scl);
+        I2C_Stop(scl, sda);
+    }
+
+    //起始信号
+    function I2C_Start(scl, sda) {
+        pins.digitalWrite(sda, 1)
+        pins.digitalWrite(scl, 1)
+        pins.digitalWrite(sda, 0)
+        pins.digitalWrite(scl, 0)
+    }
+
+    //写入一个字符
+    function Send_Byte(dat, scl, sda) {
+        let i;
+        for (i = 0; i < 8; i++) {
+            pins.digitalWrite(scl, 0)//将时钟信号设置为低电平
+            if (dat & 0x80)//将dat的8位从最高位依次写入
+            {
+                pins.digitalWrite(sda, 1);
+            }
+            else {
+                pins.digitalWrite(sda, 0);
+            }
+            pins.digitalWrite(scl, 1);//将时钟信号设置为高电平
+            pins.digitalWrite(scl, 0);//将时钟信号设置为低电平
+            dat <<= 1;
+        }
+    }
+
+    //等待信号响应
+    function I2C_WaitAck(scl) //测数据信号的电平
+    {
+        pins.digitalWrite(scl, 1);
+        pins.digitalWrite(scl, 0);
+    }
+
+    //结束信号
+    function I2C_Stop(scl, sda) {
+        pins.digitalWrite(scl, 1);
+        pins.digitalWrite(sda, 0);
+        pins.digitalWrite(sda, 1)// OLED_SDIN_Set();
+    }
+
+
+
+
+    //清屏函数
+    function OLED_Clear() {
+        let i, n;
+        for (i = 0; i < 8; i++) {
+            for (n = 0; n < 128; n++) {
+                OLED_GRAM[n][i] = 0;//清除所有数据
+            }
+        }
+        OLED_Refresh(a,b);//更新显示
+    }
+
+    //更新显存到OLED 
+    function OLED_Refresh(scl, sda) {
+        let i, n;
+        for (i = 0; i < 8; i++) {
+            OLED_WR_Byte(0xb0 + i, OLED_CMD, scl, sda); //设置行起始地址
+            OLED_WR_Byte(0x00, OLED_CMD, scl, sda);   //设置低列起始地址
+            OLED_WR_Byte(0x10, OLED_CMD, scl, sda);   //设置高列起始地址
+            for (n = 0; n < 128; n++)
+                OLED_WR_Byte(OLED_GRAM[n][i], OLED_DATA, scl, sda);
+        }
+    }
+
+
+    /**
+     * 
+     * 下载内容
+     */
     function cmd1(d: number) {
         let n = d % 256;
         pins.i2cWriteNumber(_I2CAddr, n, NumberFormat.UInt16BE);
@@ -322,26 +437,23 @@ namespace OLED12864_I2C {
     }
 
     /**
-     * 重新绘制屏幕的显示内容
+     * 重新绘制屏幕的显示内容xxxxxx
      */
-    //% blockId="OLED12864_I2C_DRAW" block="刷新显示"
+    //% blockId="OLED12864_I2C_DRAW" block="OLED实时刷新"
     //% weight=64 blockGap=8
     //% parts=OLED12864_I2C trackArgs=0
     export function draw() {
-        set_pos()
-        pins.i2cWriteBuffer(_I2CAddr, _screen)
+        OLED_Refresh(a, b)
     }
 
     /**
      * 清除 OLED 模块的显示内容
      */
-    //% blockId="OLED12864_I2C_CLEAR" block="清除显示内容"
+    //% blockId="OLED12864_I2C_CLEAR" block="OLED清屏"
     //% weight=63 blockGap=8
     //% parts=OLED12864_I2C trackArgs=0
     export function clear() {
-        _screen.fill(0)
-        _screen[0] = 0x40
-        draw()
+        OLED_Clear()
     }
 
     /**
@@ -380,31 +492,52 @@ namespace OLED12864_I2C {
      * OLED 初始化
      * @param addr 是 i2c 地址, eg: 60
      */
-    //% blockId="OLED12864_I2C_init" block="初始化 OLED，设置 I2C 地址为 %addr"
+    //% blockId="OLED12864_I2C_init" block="初始化 OLED,设置引脚SCL %scls SDA %sdas"
     //% weight=100 blockGap=8
     //% parts=OLED12864_I2C trackArgs=0
-    export function init(addr: number) {
-        _I2CAddr = addr;
-        cmd1(0xAE)       // SSD1306_DISPLAYOFF
-        cmd1(0xA4)       // SSD1306_DISPLAYALLON_RESUME
-        cmd2(0xD5, 0xF0) // SSD1306_SETDISPLAYCLOCKDIV
-        cmd2(0xA8, 0x3F) // SSD1306_SETMULTIPLEX
-        cmd2(0xD3, 0x00) // SSD1306_SETDISPLAYOFFSET
-        cmd1(0 | 0x0)    // line #SSD1306_SETSTARTLINE
-        cmd2(0x8D, 0x14) // SSD1306_CHARGEPUMP
-        cmd2(0x20, 0x00) // SSD1306_MEMORYMODE
-        cmd3(0x21, 0, 127) // SSD1306_COLUMNADDR
-        cmd3(0x22, 0, 63)  // SSD1306_PAGEADDR
-        cmd1(0xa0 | 0x1) // SSD1306_SEGREMAP
-        cmd1(0xc8)       // SSD1306_COMSCANDEC
-        cmd2(0xDA, 0x12) // SSD1306_SETCOMPINS
-        cmd2(0x81, 0xCF) // SSD1306_SETCONTRAST
-        cmd2(0xd9, 0xF1) // SSD1306_SETPRECHARGE
-        cmd2(0xDB, 0x40) // SSD1306_SETVCOMDETECT
-        cmd1(0xA6)       // SSD1306_NORMALDISPLAY
-        cmd2(0xD6, 1)    // zoom on
-        cmd1(0xAF)       // SSD1306_DISPLAYON
-        clear()
-        _ZOOM = 1
+    export function init(scls: DigitalPin, sdas: DigitalPin) {
+        pinMode(scls, OUTPUT);//设置数字8
+        pinMode(sdas, OUTPUT);//设置数字9
+        pinMode(res, OUTPUT);//设置数字10
+        a = scls;
+        b = sdas;
+        pins.digitalWrite(res, 1);
+        basic.pause(100);
+        pins.digitalWrite(res, 0);
+        basic.pause(200);
+        pins.digitalWrite(res, 1);
+
+
+        OLED_WR_Byte(0xAE, OLED_CMD, scls, sdas);//--turn off oled panel 19 关闭面板
+        OLED_WR_Byte(0x00, OLED_CMD, scls, sdas);//---set low column address设置低列地址
+        OLED_WR_Byte(0x10, OLED_CMD, scls, sdas);//---set high column address设置高列地址
+        OLED_WR_Byte(0x40, OLED_CMD, scls, sdas);//--set start line address  Set Mapping RAM Display Start Line (0x00~0x3F)设置起始行地址设置映射RAM显示起始行
+        OLED_WR_Byte(0x81, OLED_CMD, scls, sdas);//--set contrast control register设置对比度控制寄存器
+        OLED_WR_Byte(0xCF, OLED_CMD, scls, sdas);// Set SEG Output Current Brightness设置SEG输出电流亮度
+        OLED_WR_Byte(0xA1, OLED_CMD, scls, sdas);//--Set SEG/Column Mapping 设置SEG /列映射    0xa0左右反置 0xa1正常
+        OLED_WR_Byte(0xC8, OLED_CMD, scls, sdas);//Set COM/Row Scan Direction 设置COM /行扫描方向  0xc0上下反置 0xc8正常
+        OLED_WR_Byte(0xA6, OLED_CMD, scls, sdas);//--set normal display   设置正常显示
+        OLED_WR_Byte(0xA8, OLED_CMD, scls, sdas);//--set multiplex ratio(1 to 64)  设置多路复用率（1到64）
+        OLED_WR_Byte(0x3f, OLED_CMD, scls, sdas);//--1/64 duty
+        OLED_WR_Byte(0xD3, OLED_CMD, scls, sdas);//-set display offset Shift Mapping RAM Counter (0x00~0x3F) 设置显示偏移移位映射RAM计数器
+        OLED_WR_Byte(0x00, OLED_CMD, scls, sdas);//-not offset  不抵消
+        OLED_WR_Byte(0xd5, OLED_CMD, scls, sdas);//--set display clock divide ratio/oscillator frequency   设置显示时钟分频比/振荡器频率
+        OLED_WR_Byte(0x80, OLED_CMD, scls, sdas);//--set divide ratio, Set Clock as 100 Frames/Sec  设置分频比，将时钟设置为100帧/秒
+        OLED_WR_Byte(0xD9, OLED_CMD, scls, sdas);//--set pre-charge period  设定预充电时间
+        OLED_WR_Byte(0xF1, OLED_CMD, scls, sdas);//Set Pre-Charge as 15 Clocks & Discharge as 1 Clock   将预充电设置为15个时钟并将放电设置为1个时钟
+        OLED_WR_Byte(0xDA, OLED_CMD, scls, sdas);//--set com pins hardware configuration   设置com引脚的硬件配置
+        OLED_WR_Byte(0x12, OLED_CMD, scls, sdas);
+        OLED_WR_Byte(0xDB, OLED_CMD, scls, sdas);//--set vcomh  设置vcomh
+        OLED_WR_Byte(0x40, OLED_CMD, scls, sdas);//Set VCOM Deselect Level   设置VCOM取消选择级别
+        OLED_WR_Byte(0x20, OLED_CMD, scls, sdas);//-Set Page Addressing Mode (0x00/0x01/0x02)  设置页面寻址模式
+        OLED_WR_Byte(0x02, OLED_CMD, scls, sdas);//
+        OLED_WR_Byte(0x8D, OLED_CMD, scls, sdas);//--set Charge Pump enable/disable   设置电荷泵启用/禁用
+        OLED_WR_Byte(0x14, OLED_CMD, scls, sdas);//--set(0x10) disable   设置（0x10）禁用
+        OLED_WR_Byte(0xA4, OLED_CMD, scls, sdas);// Disable Entire Display On (0xa4/0xa5)   禁用整个显示
+        OLED_WR_Byte(0xA6, OLED_CMD, scls, sdas);// Disable Inverse Display On (0xa6/a7)    禁用反向显示
+        OLED_WR_Byte(0xAF, OLED_CMD, scls, sdas);
+        OLED_Clear();
+        OLED_ColorTurn(0);
+        OLED_DisplayTurn(0);
     }
 }
