@@ -11,7 +11,7 @@ namespace OLED12864_I2C {
     let res = 10;
     let OLED_CMD = 0;
     let OLED_DATA = 1;
-    let OLED_GRAM;
+    let OLED_GRAM: [] = [];
     let a :number;
     let b :number;
     let font: number[] = [];
@@ -189,26 +189,26 @@ namespace OLED12864_I2C {
 
     //起始信号
     function I2C_Start(scl:number, sda :number) {
-        pins.digitalWrite(sda, 1)
-        pins.digitalWrite(scl, 1)
-        pins.digitalWrite(sda, 0)
-        pins.digitalWrite(scl, 0)
+        pins.digitalWritePin(sda, 1)
+        pins.digitalWritePin(scl, 1)
+        pins.digitalWritePin(sda, 0)
+        pins.digitalWritePin(scl, 0)
     }
 
     //写入一个字符
     function Send_Byte(dat :number, scl :number, sda :number) {
         let i;
         for (i = 0; i < 8; i++) {
-            pins.digitalWrite(scl, 0)//将时钟信号设置为低电平
+            pins.digitalWritePin(scl, 0)//将时钟信号设置为低电平
             if (dat & 0x80)//将dat的8位从最高位依次写入
             {
-                pins.digitalWrite(sda, 1);
+                pins.digitalWritePin(sda, 1);
             }
             else {
-                pins.digitalWrite(sda, 0);
+                pins.digitalWritePin(sda, 0);
             }
-            pins.digitalWrite(scl, 1);//将时钟信号设置为高电平
-            pins.digitalWrite(scl, 0);//将时钟信号设置为低电平
+            pins.digitalWritePin(scl, 1);//将时钟信号设置为高电平
+            pins.digitalWritePin(scl, 0);//将时钟信号设置为低电平
             dat <<= 1;
         }
     }
@@ -216,15 +216,15 @@ namespace OLED12864_I2C {
     //等待信号响应
     function I2C_WaitAck(scl:number) //测数据信号的电平
     {
-        pins.digitalWrite(scl, 1);
-        pins.digitalWrite(scl, 0);
+        pins.digitalWritePin(scl, 1);
+        pins.digitalWritePin(scl, 0);
     }
 
     //结束信号
     function I2C_Stop( scl :number, sda :number) {
-        pins.digitalWrite(scl, 1);
-        pins.digitalWrite(sda, 0);
-        pins.digitalWrite(sda, 1)// OLED_SDIN_Set();
+        pins.digitalWritePin(scl, 1);
+        pins.digitalWritePin(sda, 0);
+        pins.digitalWritePin(sda, 1)// OLED_SDIN_Set();
     }
 
 
@@ -501,11 +501,11 @@ namespace OLED12864_I2C {
         // pinMode(res, OUTPUT);//设置数字10
         a = scls;
         b = sdas;
-        pins.digitalWrite(res, 1);
+        pins.digitalWritePin(res, 1);
         basic.pause(100);
-        pins.digitalWrite(res, 0);
+        pins.digitalWritePin(res, 0);
         basic.pause(200);
-        pins.digitalWrite(res, 1);
+        pins.digitalWritePin(res, 1);
 
 
         OLED_WR_Byte(0xAE, OLED_CMD, scls, sdas);//--turn off oled panel 19 关闭面板
