@@ -10,10 +10,7 @@
         "README.md",
         "pxtparts.json",
         "OLED12864_I2C.ts",
-        "parts/OLED12864_I2C.svg",
-        "font.h",
-        "OLED.cpp",
-        "OLED.h"
+        "parts/OLED12864_I2C.svg"
     ],
     "testFiles": [
         "test.ts"
