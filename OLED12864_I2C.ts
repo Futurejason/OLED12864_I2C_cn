@@ -11,7 +11,7 @@ namespace OLED12864_I2C {
     let res = 10;
     let OLED_CMD = 0;
     let OLED_DATA = 1;
-    let OLED_GRAM: [][];
+    let OLED_GRAM: any[][];
     let a :number;
     let b :number;
     let font: number[] = [];
