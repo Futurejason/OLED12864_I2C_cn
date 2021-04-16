@@ -144,20 +144,20 @@ namespace OLED_display{
   //%
   void OLED_ShowString(uint8_t x, uint8_t y, String str, uint8_t size1)
   {
-    char* chr=new char[str.size()+1];
-    strcpy(chr,str.c_str());
+    // char* chr=new char[str.size()+1];
+    // strcpy(chr,str.c_str());
 
-    while ((*chr >= ' ') && (*chr <= '~')) //判断是不是非法字符!
-    {
-      OLED_ShowChar(x, y, *chr, size1);
-      x += size1 / 2;
-      if (x > 128 - size1 / 2) //换行
-      {
-        x = 0;
-        y += size1;
-      }
-      chr++;
-    }
+    // while ((*chr >= ' ') && (*chr <= '~')) //判断是不是非法字符!
+    // {
+    //   OLED_ShowChar(x, y, *chr, size1);
+    //   x += size1 / 2;
+    //   if (x > 128 - size1 / 2) //换行
+    //   {
+    //     x = 0;
+    //     y += size1;
+    //   }
+    //   chr++;
+    // }
   }
   
   //m^n
