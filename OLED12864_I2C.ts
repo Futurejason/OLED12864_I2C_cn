@@ -154,7 +154,7 @@ namespace OLED12864_I2C {
     //% blockId="OLED12864_I2C_PIXEL" block="显示字符 x %x|y %y|字符内容 %chr|字体大小 %size1"
     //% weight=70 blockGap=8
     //% parts=OLED12864_I2C trackArgs=0   shim=OLED_display::OLED_ShowChar
-    export function OLED_ShowChars(x: number, y: number, chr: any, size1: number) {
+    export function OLED_ShowChars(x: number, y: number, chr: any, size1: number) :void{
         return;
     }
 
