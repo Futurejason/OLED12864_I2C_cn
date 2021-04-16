@@ -155,7 +155,7 @@ namespace OLED12864_I2C {
     //% weight=70 blockGap=8
     //% parts=OLED12864_I2C trackArgs=0  
     //% advanced=true shim=OLED_display::OLED_ShowString
-    function OLED_ShowString(x: number, y: number, str: string, size1: number) :void{
+    export function OLED_ShowString(x: number, y: number, str: string, size1: number) :void{
         return;
     }
 
