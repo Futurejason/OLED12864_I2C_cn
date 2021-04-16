@@ -141,8 +141,10 @@ namespace OLED_display{
   //x,y:起点坐标
   //size1:字体大小
   //*chr:字符串起始地址
-  void OLED_ShowString(uint8_t x, uint8_t y, const char *chr, uint8_t size1)
+  void OLED_ShowString(uint8_t x, uint8_t y, string str, uint8_t size1)
   {
+    char* chr=new char[str.size()+1];
+    strcpy(chr,str.c_str());
     while ((*chr >= ' ') && (*chr <= '~')) //判断是不是非法字符!
     {
       OLED_ShowChar(x, y, *chr, size1);
@@ -155,7 +157,7 @@ namespace OLED_display{
       chr++;
     }
   }
-
+  
   //m^n
   u32 OLED_Pow(uint8_t m, uint8_t n)
   {
