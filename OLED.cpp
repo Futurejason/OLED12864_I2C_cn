@@ -141,8 +141,10 @@ namespace OLED_display{
   //x,y:起点坐标
   //size1:字体大小
   //*chr:字符串起始地址
+
+
   //%
-  void OLED_ShowString(uint8_t x, uint8_t y, String str, uint8_t size1)
+  void OLED_ShowString()
   {
     // char* chr=new char[str.size()+1];
     // strcpy(chr,str.c_str());
