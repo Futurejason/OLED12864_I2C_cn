@@ -4,7 +4,8 @@
     "description": "makecode 的 micro:bit 版 I2C 接口 OLED 128 x 64 显示模块扩展，来自 MicroPython/micro:bit 中文社区",
     "license": "MIT",
     "dependencies": {
-        "core": "*"
+        "core": "*",
+        "Sensorbit": "github:emakefun/pxt-sensorbit"
     },
     "files": [
         "README.md",
@@ -15,5 +16,6 @@
     "testFiles": [
         "test.ts"
     ],
-    "public": true
+    "public": true,
+    "preferredEditor": "tsprj"
 }
